@@ -9,7 +9,7 @@
 #if !defined(SPL_VECTOR_H)
 #define SPL_VECTOR_H
 
-typedef struct splvec3
+typedef struct
 { 
     double x;
     double y;
