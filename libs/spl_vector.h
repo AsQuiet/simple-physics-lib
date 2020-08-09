@@ -16,36 +16,36 @@ typedef struct splvec3
     double z;
 } vec3;
 
-vec3 create_vec3_empty();
-vec3 create_vec3(double x, double y, double z);
-vec3 copy_vec3(vec3 *v);
+vec3        create_vec3_empty       ();                                     // create vector with 0 defaults
+vec3        create_vec3             (double x, double y, double z);         // create vector
+vec3        copy_vec3               (vec3 *v);                              // copy a vector
+vec3        create_vec3_from_scalor (double scalor);                        // create a vector that has all of its components set to the scalor
 
-vec3 mod_vec3(vec3 *v, int n);
-vec3 cross_vec3(vec3 *v, vec3 *w);    
+vec3        mod_vec3                (vec3 *v, int n);                       // returns the 'modulo' vector of a vector with an int
+vec3        cross_vec3              (vec3 *v, vec3 *w);                     // returns the cross-product vector
 
-vec3 get_add_vec3(vec3 *v, vec3*w);
-vec3 get_sub_vec3(vec3 *v, vec3*w);
-vec3 get_mul_vec3(vec3 *v, vec3*w);
-vec3 get_div_vec3(vec3 *v, vec3*w);
+vec3        get_add_vec3            (vec3 *v, vec3*w);                      // get a vector by addition
+vec3        get_sub_vec3            (vec3 *v, vec3*w);                      // get a vector by subtraction
+vec3        get_mul_vec3            (vec3 *v, vec3*w);                      // get a vector by multiplication
+vec3        get_div_vec3            (vec3 *v, vec3*w);                      // get a vector by division
 
-void add_vec3(vec3 *v, vec3*w);
-void sub_vec3(vec3 *v, vec3*w);
-void mul_vec3(vec3 *v, vec3*w);
-void div_vec3(vec3 *v, vec3*w);
+void        add_vec3                (vec3 *v, vec3*w);                      // add two vectors
+void        sub_vec3                (vec3 *v, vec3*w);                      // subtract two vectors
+void        mul_vec3                (vec3 *v, vec3*w);                      // multiply two vectors
+void        div_vec3                (vec3 *v, vec3*w);                      // divide two vectors
 
-void limit_vec3(vec3 *v, double min, double max);
-void limit_mag_vec3(vec3 *v, double min, double max);
+void        limit_vec3              (vec3 *v, double min, double max);      // limit each component of a vector 
+void        limit_mag_vec3          (vec3 *v, double min, double max);      // limit the magnitude of a vector
+void        set_mag_vec3            (vec3 *v, double magnitude);            // set the magnitude of a vector
+void        normalize_vec3          (vec3 *v);                              // set magnitude to 1 (unit length)
 
-double mag(vec3 *v);
-double magSq(vec3 *v);
-double dot_vec3(vec3 *v, vec3 *w);
+double      mag_vec3                (vec3 *v);                              // get the magnitude
+double      mag_sq_vec3             (vec3 *v);                              // get the magnitude squared
 
-double getHeading(vec3 *v);
+double      dot_vec3                (vec3 *v, vec3 *w);                     // get the dot product
+double      get_heading_vec3        (vec3 *v);                              // get the heading in radians of a vector
 
-void normalize(vec3 *v);
-void setMag(vec3 *v, double magnitude);
-
-void print_vec3(vec3 *vec);
+void        print_vec3              (vec3 *vec);                            // print out the vector
 
 #endif
 
@@ -66,6 +66,11 @@ vec3 create_vec3_empty()
 vec3 copy_vec3(vec3 *v)
 {
     return create_vec3(v->x, v->y, v->z);
+}
+
+vec3 create_vec3_from_scalor(double scalor)
+{
+    return create_vec3(scalor, scalor, scalor);
 }
 
 void add_vec3(vec3 *v, vec3 *w)
@@ -124,30 +129,27 @@ vec3 get_div_vec3(vec3 *v, vec3 *w)
     return u;
 }
 
-double magSq(vec3 *v)
+double mag_sq_vec3(vec3 *v)
 {
     return v->x * v->x + v->y * v->y + v->z * v->z;
 }
 
-double mag(vec3 *v)
+double mag_vec3(vec3 *v)
 {
-    return sqrt(magSq(v));
+    return sqrt(mag_sq_vec3(v));
 }
 
-void setMag(vec3 *v, double magnitude)
+void set_mag_vec3(vec3 *v, double magnitude)
 {   
-    normalize(v);
-    v->x = v->x * magnitude;
-    v->y = v->y * magnitude;
-    v->z = v->z * magnitude;
+    normalize_vec3(v);
+    vec3 temp = create_vec3_from_scalor(magnitude);
+    mul_vec3(v, &temp);
 }
 
-void normalize(vec3 *v)
+void normalize_vec3(vec3 *v)
 {   
-    double magnitude = mag(v);
-    v->x = v->x / magnitude;
-    v->y = v->y / magnitude;
-    v->z = v->z / magnitude;
+    vec3 temp = create_vec3_from_scalor(mag_vec3(v));
+    div_vec3(v, &temp);
 }
 
 void limit_vec3(vec3 *v, double min, double max)
@@ -170,25 +172,17 @@ void limit_vec3(vec3 *v, double min, double max)
 
 void limit_mag_vec3(vec3 *v, double min, double max)
 {
-    double mag_ = mag(v);
+    double mag_ = mag_vec3(v);
 
     if (mag_ < min)
-        setMag(v, min);
+        set_mag_vec3(v, min);
     if (mag_ > max)
-        setMag(v, max);
+        set_mag_vec3(v, max);
 }
 
-double getHeading(vec3 *v)
+double get_heading_vec3(vec3 *v)
 {
-    // in radians
-    if (v->x == 0.0)
-        if (v->y == 0.0)
-            return 270;
-        else
-            return 90;
-
-    double angle = v->y / v->x;
-    return atan(angle);
+    return atan2(v->y, v->x);
 }
 
 vec3 mod_vec3(vec3 *v, int n)
